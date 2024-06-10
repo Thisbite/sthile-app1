@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import data  # Assurez-vous que ce module contient les fonctions de manipulation des données
-import plotly.express as px
+import plotly_express as px
 
 # Page configuration
 st.set_page_config(page_title="S'Thilé - Suivi et Évaluation", page_icon="👗", layout="wide")
