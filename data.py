@@ -6,7 +6,17 @@ import hashlib
 conn = sqlite3.connect('sthile.db')
 cursor = conn.cursor()
 
+def supprimer1():
+    cursor.execute('DROP TABLE performances')
+    return
 
+supprimer1()
+
+def supprimer2():
+    cursor.execute('DROP TABLE acquisitions')
+    return
+
+supprimer2()
 # Création des tables si elles n'existent pas déjà
 def creer_tables():
     cursor.execute('''CREATE TABLE IF NOT EXISTS commandes (
