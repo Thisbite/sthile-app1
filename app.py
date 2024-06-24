@@ -119,8 +119,10 @@ elif page == "Ventes" and st.session_state['logged_in']:
         type_vetement = st.selectbox("Type de Vêtement", options=types_vetements)
         nombre = st.number_input("Nombre", min_value=1, step=1)
         prix_vente = st.number_input("Prix de Vente", min_value=0.0, step=0.01)
+
         retouche = st.checkbox("Retouche")
-        motif_retouche = st.text_area("Motif de Retouche") if retouche else ""
+        if retouche:
+            motif_retouche = st.text_area("Motif de Retouche")
         submitted = st.form_submit_button("Enregistrer")
 
         if submitted:
