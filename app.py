@@ -1,8 +1,19 @@
 import streamlit as st
+import sqlite3
 import pandas as pd
 from datetime import datetime
 import data  # Assurez-vous que ce module contient les fonctions de manipulation des données
 import plotly_express as px
+import fonction_page as fp
+conn = sqlite3.connect('sthile.db')
+def load_data(table_name):
+    query = f"SELECT * FROM {table_name}"
+    return pd.read_sql(query, conn)
+
+
+
+
+
 
 # Page configuration
 st.set_page_config(page_title="S'Thilé - Suivi et Évaluation", page_icon="👗", layout="wide")
@@ -20,10 +31,10 @@ if not st.session_state['logged_in']:
     page = st.sidebar.selectbox("Choisir une page", ["Connexion", "Enregistrement"])
 else:
     page = st.sidebar.selectbox("Choisir une page",
-                                ["Commandes de Tissus", "Production", "Performance des Ouvriers", "Ventes", "Stocks",  "Acquisition des Matières Premières","Rapports"])
+                                ["Ressources humaines","Ma boutique","Statistique boutique"])
 
 # Enregistrement des utilisateurs
-if page == "Enregistrement":
+if page == "Utilisateur App":
     st.header("Enregistrement des Utilisateurs")
 
     with st.form("enregistrement_utilisateur"):
@@ -56,140 +67,80 @@ elif page == "Connexion":
             else:
                 st.error("Nom d'utilisateur ou mot de passe incorrect.")
 
-# Commandes de Tissus
-elif page == "Commandes de Tissus" and st.session_state['logged_in']:
-    st.header("Enregistrement des Commandes de Tissus")
 
-    with st.form("commande_tissus"):
-        date_commande = st.date_input("Date de Commande")
-        type_tissu = st.text_input("Type de Tissu")
-        quantite = st.number_input("Quantité", min_value=0.0, step=0.1)
-        cout = st.number_input("Coût", min_value=0.0, step=0.01)
-        submitted = st.form_submit_button("Enregistrer")
-
-        if submitted:
-            data.enregistrer_commande_tissus(date_commande, type_tissu, quantite, cout)
-            st.success("Commande enregistrée avec succès.")
-
-# Production
-elif page == "Production" and st.session_state['logged_in']:
-    st.header("Suivi de la Production")
-
-    with st.form("production"):
-        date_production = st.date_input("Date de Production")
-        type_vetement = st.text_input("Type de Vêtement")
-        nombre = st.number_input("Nombre", min_value=1, step=1)
-        couleur = st.text_input("Couleur")
-        longueur_manche = st.text_input("Longueur de Manche")
-        taille = st.text_input("Taille")
-        forme_cou = st.text_input("Forme du Cou")
-        ouvrier = st.text_input("Ouvrier")
-        submitted = st.form_submit_button("Enregistrer")
-
-        if submitted:
-            data.enregistrer_production(date_production, type_vetement, nombre, couleur, longueur_manche, taille, forme_cou, ouvrier)
-            st.success("Production enregistrée avec succès.")
-
-# Performance des Ouvriers
-elif page == "Performance des Ouvriers" and st.session_state['logged_in']:
-    st.header("Évaluation de la Performance des Ouvriers")
-
-    with st.form("performance_ouvriers"):
-        date = st.date_input("Date")
-        ouvrier = st.text_input("Ouvrier")
-        heure_arrivee = st.time_input("Heure d'Arrivée")
-        heure_depart = st.time_input("Heure de Départ")
-        nombre_vetements = st.number_input("Nombre de Vêtements Confectionnés", min_value=0, step=1)
-        types_vetements = st.text_area("Types de Vêtements Confectionnés")
-        submitted = st.form_submit_button("Enregistrer")
-
-        if submitted:
-            data.enregistrer_performance_ouvrier(date, ouvrier, heure_arrivee, heure_depart, nombre_vetements, types_vetements)
-            st.success("Performance enregistrée avec succès.")
-
-# Ventes
-elif page == "Ventes" and st.session_state['logged_in']:
-    st.header("Suivi des Ventes")
-
-    # Obtenir les types de vêtements disponibles
-    types_vetements = data.obtenir_types_vetements()
-
-    with st.form("ventes"):
-        date_vente = st.date_input("Date de Vente")
-        type_vetement = st.selectbox("Type de Vêtement", options=types_vetements)
-        nombre = st.number_input("Nombre", min_value=1, step=1)
-        prix_vente = st.number_input("Prix de Vente", min_value=0.0, step=0.01)
-
-        retouche = st.checkbox("Retouche")
-        if retouche:
-            motif_retouche = st.text_area("Motif de Retouche")
-        submitted = st.form_submit_button("Enregistrer")
-
-        if submitted:
-            data.enregistrer_vente(date_vente, type_vetement, nombre, prix_vente, retouche, motif_retouche)
-            st.success("Vente enregistrée avec succès.")
-
-# Stocks
-elif page == "Stocks" and st.session_state['logged_in']:
-    st.header("État des Stocks")
-
-    stock_data = data.obtenir_stock()
-    st.write(stock_data)
+elif page=="Ma boutique":
+    fp.page_ventes()
 
 
 
-# Acquisition
-elif page == "Acquisition des Matières Premières" and st.session_state['logged_in']:
-    st.header("Enregistrement de l'Acquisition des Matières Premières")
 
-    with st.form("acquisition_matiere"):
-        date_acquisition = st.date_input("Date d'Acquisition")
-        quantite_tissu = st.number_input("Quantité de Tissu (mètres)", min_value=0.0, step=0.1)
-        matiere_tissu = st.text_input("Matière de Tissu")
-        couleur_tissu = st.text_input("Couleur de Tissu")
-        quantite_bobine_fil = st.number_input("Quantité de Bobine de Fil", min_value=0, step=1)
-        quantite_bouton = st.number_input("Quantité de Bouton", min_value=0, step=1)
-        quantite_bande_tissee = st.number_input("Quantité de Bande Tissée", min_value=0, step=1)
-        collant_dur = st.number_input("Collant Dur (mètres)", min_value=0.0, step=0.1)
-        collant_papier = st.number_input("Collant Papier (mètres)", min_value=0.0, step=0.1)
-        viseline = st.number_input("Viseline (mètres)", min_value=0.0, step=0.1)
-        popeline = st.number_input("Popeline (mètres)", min_value=0.0, step=0.1)
-        submitted = st.form_submit_button("Enregistrer")
 
-        if submitted:
-            data.enregistrer_acquisition(date_acquisition, quantite_tissu, matiere_tissu, couleur_tissu, quantite_bobine_fil, quantite_bouton, quantite_bande_tissee, collant_dur, collant_papier, viseline, popeline)
-            st.success("Acquisition enregistrée avec succès.")
 
 
 # Rapports
-elif page == "Rapports" and st.session_state['logged_in']:
+elif page == "Statistique boutique" and st.session_state['logged_in']:
     st.header("Rapports Statistiques")
-    ventes_data = data.obtenir_ventes()
-    if not ventes_data.empty:
-        # Créer le diagramme circulaire
-        st.subheader("Diagramme Circulaire des Types de Vêtements Vendus")
-        fig = px.pie(ventes_data, names='Type de Vêtement', title='Répartition des Vêtements Vendus par Type')
-        st.plotly_chart(fig)
-    else:
-        st.info("Aucune donnée de vente disponible .")
-    st.header("Données statistiques")
-    st.subheader("Tableaux de Ventes")
+    # Charger les tables
+    commandes = load_data('commandes')
+    production = load_data('production')
 
-    st.write(ventes_data)
+    ventes = load_data('ventes')
+    acquisitions = load_data('acquisitions')
 
-    st.subheader("Tableaux d'acquisition de matière première")
-    matiere_data=data.obtenir_acquisitions()
-    st.write(matiere_data)
+    # Afficher les statistiques des ventes
+    st.title("Statistiques des Ventes")
 
-    st.subheader("Tableaux de Production")
-    production_data = data.obtenir_production()
-    st.write(production_data)
+    # Total des ventes par mois
+    ventes['date'] = pd.to_datetime(ventes['date'])
+    ventes['mois'] = ventes['date'].dt.to_period('M')
+    ventes_mensuelles = ventes.groupby('mois').agg({'nombre': 'sum', 'prix_vente': 'sum'}).reset_index()
 
-    st.subheader("Tableaux des Performances des Ouvriers")
-    performance_data = data.obtenir_performances()
-    st.write(performance_data)
+    fig1 = px.bar(ventes_mensuelles, x='mois', y='nombre', title='Total des Ventes par Mois')
+    st.plotly_chart(fig1)
+
+    fig2 = px.bar(ventes_mensuelles, x='mois', y='prix_vente', title='Revenu des Ventes par Mois')
+    st.plotly_chart(fig2)
+
+    # Répartition des ventes par type de vêtement
+    ventes_par_type = ventes.groupby('type_vetement').agg({'nombre': 'sum'}).reset_index()
+    fig3 = px.pie(ventes_par_type, values='nombre', names='type_vetement',
+                  title='Répartition des Ventes par Type de Vêtement')
+    st.plotly_chart(fig3)
+
+    # Afficher les statistiques de production
+    st.title("Statistiques de Production")
+
+    # Production par ouvrier
+    production_par_ouvrier = production.groupby('ouvrier').agg({'nombre': 'sum'}).reset_index()
+    fig4 = px.bar(production_par_ouvrier, x='ouvrier', y='nombre', title='Production par Ouvrier')
+    st.plotly_chart(fig4)
+
+    # Répartition des vêtements produits par type
+    production_par_type = production.groupby('type_vetement').agg({'nombre': 'sum'}).reset_index()
+    fig5 = px.pie(production_par_type, values='nombre', names='type_vetement',
+                  title='Répartition des Vêtements Produits par Type')
+    st.plotly_chart(fig5)
 
 
+    st.title("Statistiques des Acquisitions")
 
-    # Vérifier s'il y a des données de ventes
+    # Quantité de matières premières acquises
+    acquisitions['date'] = pd.to_datetime(acquisitions['date'])
+    acquisitions['mois'] = acquisitions['date'].dt.to_period('M')
+
+    # Filtrer les colonnes numériques uniquement
+    numerical_columns = ['quantite_tissu', 'quantite_bobine_fil', 'quantite_bouton', 'quantite_bande_tissee',
+                         'collant_dur', 'collant_papier', 'viseline', 'popeline']
+    acquisitions_mensuelles = acquisitions.groupby('mois')[numerical_columns].sum().reset_index()
+
+    fig8 = px.bar(acquisitions_mensuelles, x='mois', y='quantite_tissu', title='Quantité de Tissu Acquis par Mois')
+    st.plotly_chart(fig8)
+
+    fig9 = px.bar(acquisitions_mensuelles, x='mois', y='quantite_bobine_fil',
+                  title='Quantité de Bobines de Fil Acquises par Mois')
+    st.plotly_chart(fig9)
+
+    # Fermer la connexion à la base de données
+    conn.close()
+
 

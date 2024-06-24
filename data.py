@@ -6,19 +6,24 @@ import hashlib
 conn = sqlite3.connect('sthile.db')
 cursor = conn.cursor()
 
-def supprimer1():
-    cursor.execute('DROP TABLE performances')
-    return
-
-supprimer1()
-
-def supprimer2():
-    cursor.execute('DROP TABLE acquisitions')
-    return
-
-supprimer2()
-# Création des tables si elles n'existent pas déjà
 def creer_tables():
+
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS employes(
+    id INTEGER PRIMARY KEY,
+        nom_prenoms TEXT,
+        date_naissance TEXT,
+        contact_telephone1 TEXT,
+        contact_telephone2 TEXT,
+        adresse_mail TEXT,
+        fonction TEXT,
+        niveau_education TEXT,
+        stat_matrimo TEXT,
+        type_contrat TEXT,
+        date_entre TEXT ,
+        ville_origne TEXT 
+    )
+    ''')
     cursor.execute('''CREATE TABLE IF NOT EXISTS commandes (
                         id INTEGER PRIMARY KEY,
                         date TEXT,
@@ -30,6 +35,7 @@ def creer_tables():
     cursor.execute('''CREATE TABLE IF NOT EXISTS production (
                         id INTEGER PRIMARY KEY,
                         date TEXT,
+                        serie_vet TEXT,
                         type_vetement TEXT,
                         nombre INTEGER,
                         couleur TEXT,
@@ -39,19 +45,20 @@ def creer_tables():
                         ouvrier TEXT
                       )''')
 
-    cursor.execute('''CREATE TABLE IF NOT EXISTS performances (
+    cursor.execute('''CREATE TABLE IF NOT EXISTS pointages (
                         id INTEGER PRIMARY KEY,
                         date TEXT,
                         ouvrier TEXT,
+                        presence TEXT,
                         heure_arrivee TEXT,
-                        heure_depart TEXT,
-                        nombre_vetements INTEGER,
-                        types_vetements TEXT
+                        heure_depart TEXT ,
+                        motif TEXT          
                       )''')
 
     cursor.execute('''CREATE TABLE IF NOT EXISTS ventes (
                         id INTEGER PRIMARY KEY,
                         date TEXT,
+                        serie_vet TEXT,
                         type_vetement TEXT,
                         nombre INTEGER,
                         prix_vente REAL,
@@ -87,18 +94,21 @@ def creer_tables():
 creer_tables()
 
 
-# Fonctions pour enregistrer les données
+def enregistrement_pointage(date, ouvrier, presence, heure_arrivee, heure_depart, motif):
+    cursor.execute('''
+        INSERT INTO pointages (date, ouvrier, presence, heure_arrivee, heure_depart, motif)
+        VALUES (?, ?, ?, ?, ?, ?)
+    ''', (date, ouvrier, presence, heure_arrivee, heure_depart, motif))
+    conn.commit()
+    conn.close()
+
 def enregistrer_commande_tissus(date, type_tissu, quantite, cout):
     cursor.execute('''INSERT INTO commandes (date, type_tissu, quantite, cout)
                       VALUES (?, ?, ?, ?)''', (date, type_tissu, quantite, cout))
     conn.commit()
 
 
-def enregistrer_production(date, type_vetement, nombre, couleur, longueur_manche, taille, forme_cou, ouvrier):
-    cursor.execute('''INSERT INTO production (date, type_vetement, nombre, couleur, longueur_manche, taille, forme_cou, ouvrier)
-                      VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
-                   (date, type_vetement, nombre, couleur, longueur_manche, taille, forme_cou, ouvrier))
-    conn.commit()
+
 
 
 def enregistrer_performance_ouvrier(date, ouvrier, heure_arrivee, heure_depart, nombre_vetements, types_vetements):
@@ -109,9 +119,9 @@ def enregistrer_performance_ouvrier(date, ouvrier, heure_arrivee, heure_depart, 
     conn.commit()
 
 
-def enregistrer_vente(date, type_vetement, nombre, prix_vente, retouche, motif_retouche):
-    cursor.execute('''INSERT INTO ventes (date, type_vetement, nombre, prix_vente, retouche, motif_retouche)
-                      VALUES (?, ?, ?, ?, ?, ?)''', (date, type_vetement, nombre, prix_vente, retouche, motif_retouche))
+def enregistrer_vente(date, serie_vet,type_vetement, nombre, prix_vente, retouche, motif_retouche):
+    cursor.execute('''INSERT INTO ventes (date,serie_vet, type_vetement, nombre, prix_vente, retouche, motif_retouche)
+                      VALUES (?, ?, ?, ?, ?, ?)''', (date,serie_vet, type_vetement, nombre, prix_vente, retouche, motif_retouche))
     conn.commit()
 
 
@@ -124,7 +134,8 @@ def enregistrer_utilisateur(username, password):
 
 def verifier_utilisateur(username, password):
     password_hashed = hashlib.sha256(password.encode()).hexdigest()
-    cursor.execute('''SELECT * FROM utilisateurs WHERE username=? AND password=?''', (username, password_hashed))
+    cursor.execute('''SELECT * FROM utilisateurs WHERE username=? AND password=?''',
+                   (username, password_hashed))
     user = cursor.fetchone()
     return user
 
@@ -133,7 +144,7 @@ def verifier_utilisateur(username, password):
 def obtenir_ventes():
     cursor.execute('SELECT * FROM ventes')
     data = cursor.fetchall()
-    df = pd.DataFrame(data, columns=['ID', 'Date', 'Type de Vêtement', 'Nombre', 'Prix de Vente', 'Retouche',
+    df = pd.DataFrame(data, columns=['ID', 'Date','Series ', 'Type de Vêtement', 'Nombre', 'Prix de Vente', 'Retouche',
                                      'Motif de Retouche'])
     return df
 
@@ -147,13 +158,6 @@ def obtenir_production():
     return df
 
 
-def obtenir_performances():
-    cursor.execute('SELECT * FROM performances')
-    data = cursor.fetchall()
-    df = pd.DataFrame(data,
-                      columns=['ID', 'Date', 'Ouvrier', 'Heure d\'Arrivée', 'Heure de Départ', 'Nombre de Vêtements',
-                               'Types de Vêtements'])
-    return df
 
 
 def obtenir_types_vetements():
