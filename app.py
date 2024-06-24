@@ -70,6 +70,14 @@ elif page == "Connexion":
 
 elif page=="Ma boutique":
     fp.page_ventes()
+    fp.page_commande()
+
+
+
+elif page=="Ressources humaines":
+    fp.page_pointage()
+    fp.page_employes()
+
 
 
 

@@ -93,6 +93,14 @@ def creer_tables():
 # Appel à la création des tables au démarrage
 creer_tables()
 
+def enregistrement_employe(nom_prenoms, date_naissance, contact_telephone1, contact_telephone2, adresse_mail, fonction, niveau_education, stat_matrimo, type_contrat, date_entre, ville_origne):
+    cursor.execute('''
+        INSERT INTO employes (nom_prenoms, date_naissance, contact_telephone1, contact_telephone2, adresse_mail, fonction, niveau_education, stat_matrimo, type_contrat, date_entre, ville_origne)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (nom_prenoms, date_naissance, contact_telephone1, contact_telephone2, adresse_mail, fonction, niveau_education, stat_matrimo, type_contrat, date_entre, ville_origne))
+    conn.commit()
+
+
 
 def enregistrement_pointage(date, ouvrier, presence, heure_arrivee, heure_depart, motif):
     cursor.execute('''
@@ -111,12 +119,7 @@ def enregistrer_commande_tissus(date, type_tissu, quantite, cout):
 
 
 
-def enregistrer_performance_ouvrier(date, ouvrier, heure_arrivee, heure_depart, nombre_vetements, types_vetements):
-    heure_arrivee_str = heure_arrivee.strftime('%H:%M')
-    heure_depart_str = heure_depart.strftime('%H:%M')
-    cursor.execute('''INSERT INTO performances (date, ouvrier, heure_arrivee, heure_depart, nombre_vetements, types_vetements)
-                      VALUES (?, ?, ?, ?, ?, ?)''', (date, ouvrier, heure_arrivee_str, heure_depart_str, nombre_vetements, types_vetements))
-    conn.commit()
+
 
 
 def enregistrer_vente(date, serie_vet,type_vetement, nombre, prix_vente, retouche, motif_retouche):
@@ -209,3 +212,6 @@ def obtenir_stock():
     stock_data = [{'Type de Vêtement': k, 'Stock Disponible': v['produit'] - v['vendu']} for k, v in stock.items()]
     df = pd.DataFrame(stock_data)
     return df
+
+
+
