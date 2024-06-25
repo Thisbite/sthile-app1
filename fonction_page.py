@@ -131,7 +131,7 @@ def page_production():
     </style>
     """, unsafe_allow_html=True)
 
-    st.header("Suivi de la Production")
+    st.header("Production")
 
     with st.form("production_vetements", clear_on_submit=True):
         st.markdown('<div class="form-container">', unsafe_allow_html=True)
@@ -144,7 +144,7 @@ def page_production():
         longueur_manche = st.selectbox("Longueur de Manche", ["Longue", "Courte", "Sans"])
         taille = st.selectbox("Taille", ["S", "M", "L", "XL", "XXL"])
         forme_cou = st.text_input("Forme du Col")
-        ouvrier = st.text_input("Ouvrier Responsable")
+        ouvrier = st.selectbox("Responsable de la tenue",options=data.obtenir_ouvrier())
         submitted = st.form_submit_button("Enregistrer")
 
         if submitted:
@@ -219,25 +219,21 @@ def page_ventes():
     </style>
     """, unsafe_allow_html=True)
 
-    st.header("Suivi des Ventes")
-
-    # Obtenir les types de vêtements disponibles
-    types_vetements = data.obtenir_types_vetements()
+    st.header("Vente article")
 
     with st.form("ventes"):
         st.markdown('<div class="form-container">', unsafe_allow_html=True)
-
         date_vente = st.date_input("Date de Vente")
-        type_vetement = st.selectbox("Type de Vêtement", options=types_vetements)
+        serie_vet = st.selectbox("Choisir la serie", options=data.obtenir_series())
+        type_vetement = st.selectbox("Type de Vêtement", options=data.obtenir_types_vetements())
         nombre = st.number_input("Nombre", min_value=0, step=1)
         prix_vente = st.number_input("Prix de Vente", min_value=0.0, step=0.01)
-
         retouche = st.checkbox("Retouche", key="retouche")
         motif_retouche = st.text_area("Motif de Retouche")
         submitted = st.form_submit_button("Enregistrer")
 
         if submitted:
-            data.enregistrer_vente(date_vente, type_vetement, nombre, prix_vente, retouche, motif_retouche)
+            data.enregistrer_vente(date_vente,serie_vet ,type_vetement, nombre, prix_vente, retouche, motif_retouche)
             st.success("Vente enregistrée avec succès.")
 
         st.markdown('</div>', unsafe_allow_html=True)
@@ -294,7 +290,7 @@ def page_stock():
 
 
 def page_acquisition():
-    st.header("Enregistrement de l'Acquisition des Matières Premières")
+    st.header("Enregistrer les Acquisitions des Matières Premières")
 
     with st.form("acquisition_matiere"):
         date_acquisition = st.date_input("Date d'Acquisition")
@@ -369,7 +365,7 @@ def page_pointage():
     </style>
     """, unsafe_allow_html=True)
 
-    st.header("Pointage des Ouvriers")
+    st.header("Pointage du personnel")
 
     with st.form("pointage_ouvrier", clear_on_submit=True):
         st.markdown('<div class="form-container">', unsafe_allow_html=True)
@@ -449,7 +445,7 @@ def page_employes():
     </style>
     """, unsafe_allow_html=True)
 
-    st.header("Enregistrement des Employés")
+    st.header("Enregistrement du personnel")
 
     with st.form("enregistrement_employe", clear_on_submit=True):
         st.markdown('<div class="form-container">', unsafe_allow_html=True)

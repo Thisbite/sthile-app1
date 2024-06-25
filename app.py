@@ -70,7 +70,11 @@ elif page == "Connexion":
 
 elif page=="Ma boutique":
     fp.page_ventes()
+    fp.page_production()
+    fp.page_acquisition()
     fp.page_commande()
+    fp.page_stock()
+
 
 
 

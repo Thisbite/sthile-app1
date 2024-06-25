@@ -6,6 +6,7 @@ import hashlib
 conn = sqlite3.connect('sthile.db')
 cursor = conn.cursor()
 
+
 def creer_tables():
 
     cursor.execute('''
@@ -93,6 +94,24 @@ def creer_tables():
 # Appel à la création des tables au démarrage
 creer_tables()
 
+
+def enregistrer_production(date, serie_vet, type_vetement, nombre, couleur, longueur_manche, taille, forme_cou, ouvrier):
+    cursor.execute('''
+        INSERT INTO production (date, serie_vet, type_vetement, nombre, couleur, longueur_manche, taille, forme_cou, ouvrier)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ''', (date, serie_vet, type_vetement, nombre, couleur, longueur_manche, taille, forme_cou, ouvrier))
+    conn.commit()
+
+
+def obtenir_types_vetements():
+    cursor.execute('SELECT DISTINCT type_vetement FROM production')
+    data = cursor.fetchall()
+    types_vetements = [row[0] for row in data]
+    return types_vetements
+
+
+
+
 def enregistrement_employe(nom_prenoms, date_naissance, contact_telephone1, contact_telephone2, adresse_mail, fonction, niveau_education, stat_matrimo, type_contrat, date_entre, ville_origne):
     cursor.execute('''
         INSERT INTO employes (nom_prenoms, date_naissance, contact_telephone1, contact_telephone2, adresse_mail, fonction, niveau_education, stat_matrimo, type_contrat, date_entre, ville_origne)
@@ -114,11 +133,6 @@ def enregistrer_commande_tissus(date, type_tissu, quantite, cout):
     cursor.execute('''INSERT INTO commandes (date, type_tissu, quantite, cout)
                       VALUES (?, ?, ?, ?)''', (date, type_tissu, quantite, cout))
     conn.commit()
-
-
-
-
-
 
 
 
@@ -163,11 +177,20 @@ def obtenir_production():
 
 
 
-def obtenir_types_vetements():
-    cursor.execute('SELECT DISTINCT type_vetement FROM production')
+
+
+def obtenir_ouvrier():
+    cursor.execute('SELECT DISTINCT nom_prenoms FROM employes')
     data = cursor.fetchall()
-    types_vetements = [row[0] for row in data]
-    return types_vetements
+    nom_employes = [row[0] for row in data]
+    return nom_employes
+
+
+def obtenir_series():
+    cursor.execute('SELECT DISTINCT serie_vet FROM production')
+    data = cursor.fetchall()
+    series = [row[0] for row in data]
+    return series
 
 
 
